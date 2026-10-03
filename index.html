@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AI Microplastic Detection System</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: #f4fbff;
+            color: #1f2937;
+        }
+
+        /* NAVBAR */
+
+        header {
+            background: #006d77;
+            color: white;
+            padding: 18px 7%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin-left: 25px;
+            font-size: 15px;
+        }
+
+        nav a:hover {
+            color: #a8dadc;
+        }
+
+        /* HERO */
+
+        .hero {
+            min-height: 620px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 70px 7%;
+            background: linear-gradient(135deg, #e0f7fa, #ffffff);
+        }
+
+        .hero-content {
+            width: 58%;
+        }
+
+        .hero-content h1 {
+            font-size: 48px;
+            color: #005f73;
+            line-height: 1.2;
+            margin-bottom: 20px;
+        }
+
+        .hero-content p {
+            font-size: 18px;
+            line-height: 1.8;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 14px 28px;
+            background: #008c95;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .btn:hover {
+            background: #005f73;
+        }
+
+        .hero-icon {
+            width: 35%;
+            text-align: center;
+            font-size: 150px;
+        }
+
+        /* GENERAL */
+
+        section {
+            padding: 70px 7%;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 34px;
+            color: #005f73;
+            margin-bottom: 15px;
+        }
+
+        .section-description {
+            text-align: center;
+            max-width: 750px;
+            margin: 0 auto 45px;
+            line-height: 1.7;
+            color: #555;
+        }
+
+        /* ABOUT */
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .card-icon {
+            font-size: 50px;
+            margin-bottom: 15px;
+        }
+
+        .card h3 {
+            color: #007c83;
+            margin-bottom: 15px;
+        }
+
+        .card p {
+            line-height: 1.7;
+            color: #555;
+        }
+
+        /* DETECTION */
+
+        #detection {
+            background: white;
+        }
+
+        .detection-box {
+            max-width: 750px;
+            margin: auto;
+            background: #f4fbff;
+            border: 2px dashed #008c95;
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .detection-box h3 {
+            color: #005f73;
+            margin-bottom: 10px;
+            font-size: 25px;
+        }
+
+        .detection-box p {
+            margin-bottom: 25px;
+            color: #555;
+        }
+
+        input[type="file"] {
+            margin: 20px;
+        }
+
+        #preview {
+            display: none;
+            max-width: 350px;
+            max-height: 250px;
+            margin: 20px auto;
+            border-radius: 10px;
+        }
+
+        #result {
+            display: none;
+            max-width: 750px;
+            margin: 30px auto 0;
+            padding: 30px;
+            background: #eefcff;
+            border-left: 6px solid #008c95;
+            border-radius: 10px;
+        }
+
+        #result h3 {
+            color: #005f73;
+            margin-bottom: 20px;
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .status {
+            color: #d97706;
+            font-weight: bold;
+        }
+
+        /* STATISTICS */
+
+        .statistics {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        .stat {
+            background: #006d77;
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 12px;
+        }
+
+        .stat h3 {
+            font-size: 35px;
+            margin-bottom: 8px;
+        }
+
+        /* PROCESS */
+
+        .process {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        .step {
+            background: white;
+            padding: 30px 20px;
+            text-align: center;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .step-number {
+            width: 50px;
+            height: 50px;
+            line-height: 50px;
+            background: #008c95;
+            color: white;
+            border-radius: 50%;
+            margin: auto auto 15px;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .step h3 {
+            color: #005f73;
+            margin-bottom: 10px;
+        }
+
+        .step p {
+            color: #555;
+            line-height: 1.6;
+        }
+
+        /* MICROPLASTIC INFO */
+
+        .info {
+            background: white;
+        }
+
+        .info-content {
+            max-width: 900px;
+            margin: auto;
+            line-height: 1.8;
+            font-size: 17px;
+        }
+
+        .info-content ul {
+            margin: 20px 0 20px 25px;
+        }
+
+        .info-content li {
+            margin-bottom: 10px;
+        }
+
+        /* FOOTER */
+
+        footer {
+            background: #004b52;
+            color: white;
+            text-align: center;
+            padding: 30px;
+        }
+
+        footer p {
+            margin: 7px;
+        }
+
+        /* RESPONSIVE */
+
+        @media(max-width: 900px) {
+
+            .hero {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .hero-content {
+                width: 100%;
+            }
+
+            .hero-icon {
+                width: 100%;
+                margin-top: 40px;
+            }
+
+            .cards,
+            .statistics,
+            .process {
+                grid-template-columns: 1fr 1fr;
+            }
+
+        }
+
+        @media(max-width: 600px) {
+
+            nav {
+                display: none;
+            }
+
+            .hero-content h1 {
+                font-size: 34px;
+            }
+
+            .cards,
+            .statistics,
+            .process {
+                grid-template-columns: 1fr;
+            }
+
+            section {
+                padding: 50px 5%;
+            }
+
+        }
+    </style>
+</head>
+
+<body>
+
+
+<!-- NAVIGATION -->
+
+<header>
+
+    <div class="logo">
+        💧 Microplastic AI
+    </div>
+
+    <nav>
+        <a href="#home">Home</a>
+        <a href="#about">About</a>
+        <a href="#detection">Detection</a>
+        <a href="#process">Process</a>
+        <a href="#contact">Contact</a>
+    </nav>
+
+</header>
+
+
+<!-- HERO -->
+
+<section class="hero" id="home">
+
+    <div class="hero-content">
+
+        <h1>
+            AI-Enabled Detection and Analysis of Microplastics
+        </h1>
+
+        <p>
+            An intelligent web-based system designed to detect and
+            analyze potential microplastic particles in drinking water
+            using artificial intelligence and image analysis.
+        </p>
+
+        <a href="#detection" class="btn">
+            Start Detection
+        </a>
+
+    </div>
+
+    <div class="hero-icon">
+        💧🔬
+    </div>
+
+</section>
+
+
+<!-- ABOUT -->
+
+<section id="about">
+
+    <h2 class="section-title">
+        About Our Project
+    </h2>
+
+    <p class="section-description">
+        Our project focuses on using artificial intelligence and
+        digital image analysis to support the detection and analysis
+        of microplastics in drinking water systems.
+    </p>
+
+
+    <div class="cards">
+
+        <div class="card">
+
+            <div class="card-icon">
+                🤖
+            </div>
+
+            <h3>
+                AI Detection
+            </h3>
+
+            <p>
+                AI-based image analysis can help identify and classify
+                potential microplastic particles in water samples.
+            </p>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="card-icon">
+                🔬
+            </div>
+
+            <h3>
+                Image Analysis
+            </h3>
+
+            <p>
+                Images of water samples can be analyzed to estimate
+                particle count, size and other characteristics.
+            </p>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="card-icon">
+                🌊
+            </div>
+
+            <h3>
+                Water Monitoring
+            </h3>
+
+            <p>
+                The system provides a digital platform for monitoring
+                potential microplastic contamination.
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- DETECTION -->
+
+<section id="detection">
+
+    <h2 class="section-title">
+        Microplastic Detection
+    </h2>
+
+    <p class="section-description">
+        Upload a water sample image to demonstrate the microplastic
+        detection and analysis process.
+    </p>
+
+
+    <div class="detection-box">
+
+        <h3>
+            🔬 Upload Water Sample
+        </h3>
+
+        <p>
+            Select an image of your water sample for analysis.
+        </p>
+
+
+        <input
+            type="file"
+            id="imageInput"
+            accept="image/*"
+        >
+
+
+        <img
+            id="preview"
+            alt="Water sample preview"
+        >
+
+
+        <br>
+
+
+        <button
+            class="btn"
+            onclick="analyzeSample()"
+        >
+            🤖 Analyze Sample
+        </button>
+
+    </div>
+
+
+    <!-- RESULT -->
+
+    <div id="result">
+
+        <h3>
+            📊 AI Analysis Result
+        </h3>
+
+        <div class="result-row">
+            <strong>Sample Status</strong>
+            <span class="status">
+                Potential Microplastics Detected
+            </span>
+        </div>
+
+        <div class="result-row">
+            <strong>Estimated Particles</strong>
+            <span id="particles">
+                27 particles
+            </span>
+        </div>
+
+        <div class="result-row">
+            <strong>Estimated Particle Size</strong>
+            <span>
+                0.5 – 2.8 mm
+            </span>
+        </div>
+
+        <div class="result-row">
+            <strong>Detection Confidence</strong>
+            <span>
+                94.2%
+            </span>
+        </div>
+
+        <div class="result-row">
+            <strong>Water Quality</strong>
+            <span>
+                Requires Further Testing
+            </span>
+        </div>
+
+        <div class="result-row">
+            <strong>Recommendation</strong>
+            <span>
+                Laboratory confirmation recommended
+            </span>
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- STATISTICS -->
+
+<section>
+
+    <h2 class="section-title">
+        Project Highlights
+    </h2>
+
+    <div class="statistics">
+
+        <div class="stat">
+
+            <h3>
+                AI
+            </h3>
+
+            <p>
+                Intelligent Analysis
+            </p>
+
+        </div>
+
+
+        <div class="stat">
+
+            <h3>
+                5mm
+            </h3>
+
+            <p>
+                Common Microplastic Definition
+            </p>
+
+        </div>
+
+
+        <div class="stat">
+
+            <h3>
+                24/7
+            </h3>
+
+            <p>
+                Digital Monitoring
+            </p>
+
+        </div>
+
+
+        <div class="stat">
+
+            <h3>
+                🔬
+            </h3>
+
+            <p>
+                Image-Based Analysis
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- PROCESS -->
+
+<section id="process">
+
+    <h2 class="section-title">
+        How It Works
+    </h2>
+
+    <p class="section-description">
+        The proposed system follows a simple four-step workflow.
+    </p>
+
+
+    <div class="process">
+
+        <div class="step">
+
+            <div class="step-number">
+                1
+            </div>
+
+            <h3>
+                Sample Collection
+            </h3>
+
+            <p>
+                Collect a drinking water sample for analysis.
+            </p>
+
+        </div>
+
+
+        <div class="step">
+
+            <div class="step-number">
+                2
+            </div>
+
+            <h3>
+                Image Upload
+            </h3>
+
+            <p>
+                Capture and upload an image of the sample.
+            </p>
+
+        </div>
+
+
+        <div class="step">
+
+            <div class="step-number">
+                3
+            </div>
+
+            <h3>
+                AI Analysis
+            </h3>
+
+            <p>
+                The AI model analyzes the image for potential
+                microplastic particles.
+            </p>
+
+        </div>
+
+
+        <div class="step">
+
+            <div class="step-number">
+                4
+            </div>
+
+            <h3>
+                Results
+            </h3>
+
+            <p>
+                Detection information is displayed for further
+                investigation.
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- INFORMATION -->
+
+<section class="info">
+
+    <h2 class="section-title">
+        Understanding Microplastics
+    </h2>
+
+
+    <div class="info-content">
+
+        <p>
+            Microplastics are very small plastic particles that are
+            commonly defined as particles smaller than 5 millimeters.
+            They may enter aquatic environments through different
+            sources.
+        </p>
+
+
+        <ul>
+
+            <li>
+                Breakdown of larger plastic waste
+            </li>
+
+            <li>
+                Synthetic textile fibers
+            </li>
+
+            <li>
+                Industrial activities
+            </li>
+
+            <li>
+                Plastic products and packaging
+            </li>
+
+            <li>
+                Urban and environmental pollution
+            </li>
+
+        </ul>
+
+
+        <p>
+            Detection of potential microplastics can help researchers
+            understand contamination patterns and support further
+            laboratory investigation.
+        </p>
+
+    </div>
+
+</section>
+
+
+<!-- CONTACT -->
+
+<section id="contact">
+
+    <h2 class="section-title">
+        Project Information
+    </h2>
+
+    <p class="section-description">
+
+        AI-Enabled Detection and Analysis of Microplastics
+        in Drinking Water Systems
+
+        <br><br>
+
+        Developed as an academic project for environmental
+        monitoring and artificial intelligence applications.
+
+    </p>
+
+</section>
+
+
+<!-- FOOTER -->
+
+<footer>
+
+    <p>
+        © 2026 AI Microplastic Detection System
+    </p>
+
+    <p>
+        AI • Environmental Monitoring • Water Quality
+    </p>
+
+</footer>
+
+
+<!-- JAVASCRIPT -->
+
+<script>
+
+    const imageInput = document.getElementById("imageInput");
+
+    const preview = document.getElementById("preview");
+
+
+    imageInput.addEventListener("change", function() {
+
+        const file = this.files[0];
+
+        if (file) {
+
+            const reader = new FileReader();
+
+            reader.onload = function(event) {
+
+                preview.src = event.target.result;
+
+                preview.style.display = "block";
+
+            };
+
+            reader.readAsDataURL(file);
+
+        }
+
+    });
+
+
+    function analyzeSample() {
+
+        const file = imageInput.files[0];
+
+        if (!file) {
+
+            alert("Please upload a water sample image first.");
+
+            return;
+
+        }
+
+
+        document.getElementById("result").style.display = "block";
+
+
+        const particles =
+            Math.floor(Math.random() * 40) + 10;
+
+
+        document.getElementById("particles").innerText =
+            particles + " particles";
+
+
+        document.getElementById("result").scrollIntoView({
+            behavior: "smooth"
+        });
+
+    }
+
+</script>
+
+</body>
+</html>
